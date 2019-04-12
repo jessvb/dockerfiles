@@ -44,9 +44,12 @@ RUN cd kaldi/src/ \
   && make -j 16 \
   && cd ../../
 
+# Tools and variables for pytorch-kaldi timit tutorial
 RUN cd kaldi/tools/ \
   && extras/install_irstlm.sh \
-  && apt-get -y install bc
+  && apt-get -y install bc 
+ENV USER=$(whoami)
+
 # Update environment variables (for Kaldi + Pytorch library)
 ENV KALDI_ROOT=/workspace/zhorai-workspace/kaldi
 ENV PATH=$PATH:$KALDI_ROOT/tools/openfst
