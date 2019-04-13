@@ -1,26 +1,37 @@
 FROM nvcr.io/nvidia/pytorch:19.01-py3
 
-# Python Packages:
-RUN pip install --upgrade pip
-RUN pip install keras
-RUN pip install tqdm
-
-# Google Cloud:
-# Need python 2.7.x for google cloud :/ 
+# Need python 2.7.x for google cloud and kaldi: 
 RUN apt-get -y update && apt-get -y upgrade
 RUN apt-get install -y python2.7 
-#\ python2.7-dev
+RUN echo 'alias python=/usr/bin/python2.7' >> ~/.bashrc \
+  && apt-get -y install python-pip
 
+# Google Cloud:
 # Downloading gcloud package
 RUN curl https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz > /tmp/google-cloud-sdk.tar.gz
-
 # Installing the package
 RUN mkdir -p /usr/local/gcloud \
   && tar -C /usr/local/gcloud -xvf /tmp/google-cloud-sdk.tar.gz \
   && /usr/local/gcloud/google-cloud-sdk/install.sh
-
 # Adding the package path to local
 ENV PATH $PATH:/usr/local/gcloud/google-cloud-sdk/bin
+
+# Python Packages:
+#RUN pip2 install --upgrade pip \
+#  && pip2 install keras \
+#  && pip2 install tqdm \
+#  && pip2 install configparser \
+#  && pip2 install numpy \
+#  && pip2 install https://download.pytorch.org/whl/cu100/torch-1.0.1.post2-cp27-cp27mu-linux_x86_64.whl \
+#  && pip2 install torchvision
+RUN python3 -m pip uninstall -y pip \
+  && pip2 install --upgrade pip \
+  && pip install keras \
+  && pip install tqdm \
+  && pip install configparser \
+  && pip install numpy \
+  && pip install https://download.pytorch.org/whl/cu100/torch-1.0.1.post2-cp27-cp27mu-linux_x86_64.whl \
+  && pip install torchvision 
 
 # Setup git
 RUN git config --global user.email "jess.vanbrummelen@gmail.com" \
@@ -31,7 +42,6 @@ RUN git config --global user.email "jess.vanbrummelen@gmail.com" \
 RUN git clone https://github.com/kaldi-asr/kaldi.git \
   && cd kaldi/tools/ \
 #  && extras/check_dependencies.sh \ <-- this makes python2.7 default
-  && echo 'alias python=/usr/bin/python2.7' >> ~/.bashrc \
   && apt-get -y install sox \
   && apt-get -y install subversion \
   && extras/install_mkl.sh \
