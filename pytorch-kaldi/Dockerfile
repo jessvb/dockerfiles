@@ -16,14 +16,7 @@ RUN mkdir -p /usr/local/gcloud \
 # Adding the package path to local
 ENV PATH $PATH:/usr/local/gcloud/google-cloud-sdk/bin
 
-# Python Packages:
-#RUN pip2 install --upgrade pip \
-#  && pip2 install keras \
-#  && pip2 install tqdm \
-#  && pip2 install configparser \
-#  && pip2 install numpy \
-#  && pip2 install https://download.pytorch.org/whl/cu100/torch-1.0.1.post2-cp27-cp27mu-linux_x86_64.whl \
-#  && pip2 install torchvision
+# Python Packages (must uninstall pip3 to get pytorch for python2):
 RUN python3 -m pip uninstall -y pip \
   && pip2 install --upgrade pip \
   && pip install keras \
@@ -41,7 +34,6 @@ RUN git config --global user.email "jess.vanbrummelen@gmail.com" \
 # Install Kaldi
 RUN git clone https://github.com/kaldi-asr/kaldi.git \
   && cd kaldi/tools/ \
-#  && extras/check_dependencies.sh \ <-- this makes python2.7 default
   && apt-get -y install sox \
   && apt-get -y install subversion \
   && extras/install_mkl.sh \
@@ -68,4 +60,12 @@ ENV PATH=$PATH:$KALDI_ROOT/src/featbin
 ENV PATH=$PATH:$KALDI_ROOT/src/gmmbin
 ENV PATH=$PATH:$KALDI_ROOT/src/bin
 ENV PATH=$PATH:$KALDI_ROOT//src/nnetbin
+
+# For some reason, I need to compile kaldi again for hmm-info etc. to work: 
+RUN cd kaldi/tools/ \
+  && make -j 16 \
+  && cd ../src/ \
+  && ./configure --shared \
+  && make depend -j 16 \
+  && make -j 16
 
