@@ -16,6 +16,9 @@ RUN mkdir -p /usr/local/gcloud \
 # Adding the package path to local
 ENV PATH $PATH:/usr/local/gcloud/google-cloud-sdk/bin
 
+# Before getting rid of pip3, install kaldi_io:
+RUN python3 -m pip install kaldi_io
+
 # Python Packages (must uninstall pip3 to get pytorch for python2):
 RUN python3 -m pip uninstall -y pip \
   && pip2 install --upgrade pip \
